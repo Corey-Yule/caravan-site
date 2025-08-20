@@ -45,6 +45,12 @@ import { ImageCarousel, Lightbox } from "@/components/ui/Gallery";
 import { supabase } from "@/lib/supabaseClient";
 import type { User as SupaUser } from "@supabase/supabase-js";
 
+// --- Tab Page ---
+export const metadata = {
+  title: "CaravanHub",
+  description: "List Caravans",
+}
+
 // --- Types ---
 type Standard = "Bronze" | "Silver" | "Gold";
 
