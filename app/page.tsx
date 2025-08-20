@@ -351,11 +351,6 @@ const loadProfileFor = async (supaUser: SupaUser): Promise<AppUser> => {
               <Tent className="w-5 h-5" />
             </div>
             <span className="text-lg font-semibold tracking-wide">CaravanHub</span>
-            {user?.role === "admin" && (
-              <span className="ml-3 text-xs px-2 py-1 rounded-full border border-blue-300/40 bg-blue-500/20">
-                Admin
-              </span>
-            )}
           </div>
           <div className="flex items-center gap-2">
             <div className="hidden md:flex items-center gap-2">
@@ -426,6 +421,20 @@ const loadProfileFor = async (supaUser: SupaUser): Promise<AppUser> => {
           </div>
         </div>
       </nav>
+      {/* Logged-in chip under navbar, aligned right */}
+      {user && (
+        <div className="max-w-6xl mx-auto px-4 pt-3">
+          <div className="flex justify-end">
+            <div className="inline-flex items-center gap-2 rounded-lg bg-blue-900/40 border border-blue-400/30 px-3 py-1.5 text-xs md:text-sm text-blue-100">
+              <span className="opacity-80">Logged in as</span>
+              <span className="font-semibold text-white">{user.name}</span>
+              {user.role === "admin" && (
+                <Badge className="ml-1 bg-blue-500/20 border-blue-300/40 text-blue-100">Admin</Badge>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Hero */}
       <header className="relative overflow-hidden">
