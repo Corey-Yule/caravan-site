@@ -45,12 +45,6 @@ import { ImageCarousel, Lightbox } from "@/components/ui/Gallery";
 import { supabase } from "@/lib/supabaseClient";
 import type { User as SupaUser } from "@supabase/supabase-js";
 
-// --- Tab Page ---
-export const metadata = {
-  title: "CaravanHub",
-  description: "List Caravans",
-}
-
 // --- Types ---
 type Standard = "Bronze" | "Silver" | "Gold";
 
@@ -124,6 +118,7 @@ const getListingImages = (l: Listing): string[] => (l.images?.length ? l.images 
 
 // --- Main App ---
 export default function CaravanSite() {
+
   const [user, setUser] = useState<AppUser | null>(null);
   const [listings, setListings] = useState<Listing[]>([]);
   const [featuredId, setFeaturedId] = useState<string | null>(null);
@@ -137,6 +132,7 @@ export default function CaravanSite() {
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxImages, setLightboxImages] = useState<string[]>([]);
   const [lightboxStart, setLightboxStart] = useState(0);
+
 
 // Helper: load (or create) profile (name, role) for a given Supabase user
 const loadProfileFor = async (supaUser: SupaUser): Promise<AppUser> => {
@@ -345,6 +341,7 @@ const loadProfileFor = async (supaUser: SupaUser): Promise<AppUser> => {
   };
 
   return (
+    
     <div className="min-h-screen bg-gradient-to-b from-blue-900 via-blue-950 to-black text-slate-100">
       {/* Navbar */}
       <nav className="sticky top-0 z-50 backdrop-blur supports-[backdrop-filter]:bg-blue-900/60 bg-blue-900/50 border-b border-white/10">
@@ -1112,4 +1109,5 @@ function runSelfChecks(): void {
   } catch (e) {
     console.warn("Self-checks failed:", e);
   }
+
 }
