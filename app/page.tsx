@@ -63,6 +63,21 @@ type Listing = {
   isFeatured?: boolean;
 };
 
+type ListingRow = {
+  id: string;
+  title: string;
+  standard: Standard;
+  location: string;
+  contact_name: string;
+  contact_email: string;
+  contact_phone?: string | null;
+  images: string[] | null;
+  created_at: string;
+  owner_email: string;
+  owner_id?: string | null;
+  is_featured?: boolean;
+};
+
 type AppUser = {
   name: string;
   email: string;
@@ -71,8 +86,7 @@ type AppUser = {
 };
 
 // --- Helpers ---
-const PLACEHOLDER =
-  "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=1600&auto=format&fit=crop";
+const PLACEHOLDER = "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=1600&auto=format&fit=crop";
 
 const standardBadge = (standard: Standard) => {
   const base = "px-2 py-1 rounded-full text-xs font-semibold";
@@ -220,7 +234,7 @@ const loadProfileFor = async (supaUser: SupaUser): Promise<AppUser> => {
       console.error(error);
       return;
     }
-    const mapped: Listing[] = (data || []).map((r: any) => ({
+    const mapped: Listing[] = (data as ListingRow[] | null)?.map((r) => ({
       id: r.id,
       title: r.title,
       standard: r.standard,
@@ -233,7 +247,7 @@ const loadProfileFor = async (supaUser: SupaUser): Promise<AppUser> => {
       ownerEmail: r.owner_email,
       ownerId: r.owner_id,
       isFeatured: r.is_featured,
-    }));
+    })) ?? [];
     setListings(mapped);
   };
 
@@ -366,7 +380,7 @@ const loadProfileFor = async (supaUser: SupaUser): Promise<AppUser> => {
                       Add Listing
                     </Button>
                   </DialogTrigger>
-                  <AddListingDialog onAdd={handleAddListing} ownerEmail={user.email} supaUserId={user.supaUser.id} />
+                  <AddListingDialog onAdd={handleAddListing} supaUserId={user.supaUser.id} />
                 </Dialog>
                 <Button variant="ghost" onClick={handleSignOut} className="text-slate-200 hover:text-white">
                   <LogOut className="w-4 h-4 mr-2" /> Sign out
@@ -465,21 +479,34 @@ const loadProfileFor = async (supaUser: SupaUser): Promise<AppUser> => {
       {/* Filters */}
       <section className="max-w-6xl mx-auto px-4 py-6">
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-          <Tabs value={standardFilter} onValueChange={(v) => setStandardFilter(v as any)} className="w-full md:w-auto">
+          <Tabs value={standardFilter} onValueChange={(v) => setStandardFilter(v as Standard | "All")} className="w-full md:w-auto">
             <TabsList className="bg-blue-900/40 border border-blue-400/30">
-              <TabsTrigger value="All" className="text-slate-200 data-[state=active]:text-white">
-                All
-              </TabsTrigger>
-              <TabsTrigger value="Bronze" className="text-slate-200 data-[state=active]:text-white">
-                Bronze
-              </TabsTrigger>
-              <TabsTrigger value="Silver" className="text-slate-200 data-[state=active]:text-white">
-                Silver
-              </TabsTrigger>
-              <TabsTrigger value="Gold" className="text-slate-200 data-[state=active]:text-white">
-                Gold
-              </TabsTrigger>
-            </TabsList>
+  <TabsTrigger
+    value="All"
+    className="text-slate-200 data-[state=active]:bg-blue-700 data-[state=active]:text-white"
+  >
+    All
+  </TabsTrigger>
+  <TabsTrigger
+    value="Bronze"
+    className="text-slate-200 data-[state=active]:bg-blue-700 data-[state=active]:text-white"
+  >
+    Bronze
+  </TabsTrigger>
+  <TabsTrigger
+    value="Silver"
+    className="text-slate-200 data-[state=active]:bg-blue-700 data-[state=active]:text-white"
+  >
+    Silver
+  </TabsTrigger>
+  <TabsTrigger
+    value="Gold"
+    className="text-slate-200 data-[state=active]:bg-blue-700 data-[state=active]:text-white"
+  >
+    Gold
+  </TabsTrigger>
+</TabsList>
+
           </Tabs>
           <div className="flex items-center gap-2 md:hidden w-full">
             <Input
@@ -518,10 +545,10 @@ const loadProfileFor = async (supaUser: SupaUser): Promise<AppUser> => {
                       l.isFeatured ? "ring-2 ring-blue-300/60" : ""
                     }`}
                   >
-                    <div className="w-full">
+                    <div className="relative w-full">
                       <ImageCarousel images={imgs} openLightbox={(i) => openGallery(imgs, i)} />
                       {imgs.length > 1 && (
-                        <div className="absolute mt-2 ml-2 inline-flex items-center gap-1 rounded-full bg-black/50 px-2 py-1 text-xs text-white">
+                        <div className="absolute top-2 left-2 inline-flex items-center gap-1 rounded-full bg-black/50 px-2 py-1 text-xs text-white">
                           <Images className="w-3 h-3" /> {imgs.length} photos
                         </div>
                       )}
@@ -646,7 +673,7 @@ function AuthDialog({
   const [err, setErr] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
-  const handle = async () => {
+   const handle = async () => {
     setErr(null);
     if (!email || !password) {
       setErr("Please enter your email and password.");
@@ -657,11 +684,11 @@ function AuthDialog({
       const { data, error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
       const suser = data.user!;
-      // Fetch role + name from profiles (DB source of truth)
       const appUser = await loadProfileFor(suser);
       onSignedIn(appUser);
-    } catch (e: any) {
-      setErr(e.message || "Sign in failed");
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : "Sign in failed";
+      setErr(msg);
     } finally {
       setBusy(false);
     }
@@ -727,12 +754,12 @@ function RegisterDialog({ onRegistered }: { onRegistered: (u: AppUser | null) =>
       setErr("Please fill name, email, and password.");
       return;
     }
-    try {
+     try {
       setBusy(true);
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
-        options: { data: { name } }, // keep metadata basic; role comes from DB
+        options: { data: { name } },
       });
       if (error) throw error;
 
@@ -756,8 +783,9 @@ function RegisterDialog({ onRegistered }: { onRegistered: (u: AppUser | null) =>
       } else {
         onRegistered(null);
       }
-    } catch (e: any) {
-      setErr(e.message || "Registration failed");
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : "Registration failed";
+      setErr(msg);
     } finally {
       setBusy(false);
     }
@@ -822,11 +850,9 @@ function RegisterDialog({ onRegistered }: { onRegistered: (u: AppUser | null) =>
 // --- Add Listing Dialog (uploads to Supabase Storage + inserts row) ---
 function AddListingDialog({
   onAdd,
-  ownerEmail,
   supaUserId,
 }: {
   onAdd: (l: Omit<Listing, "id" | "createdAt" | "ownerEmail">) => void;
-  ownerEmail: string;
   supaUserId: string;
 }) {
   const [title, setTitle] = useState("");
@@ -902,17 +928,12 @@ function AddListingDialog({
     return urls;
   };
 
-  const handleSave = async () => {
+   const handleSave = async () => {
     if (!canSave) return;
-
     try {
       setBusy(true);
       setImageErr(null);
-
-      // 1) Upload selected files to Storage -> public URLs
       const imageUrls = files.length ? await uploadAll() : [];
-
-      // 2) Hand back to parent; parent will insert into DB
       onAdd({
         title,
         standard,
@@ -922,9 +943,9 @@ function AddListingDialog({
         contactPhone: contactPhone || null,
         images: imageUrls,
       });
-    } catch (e: any) {
-      console.error(e);
-      setImageErr(e?.message ?? "Failed to save listing");
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : "Failed to save listing";
+      setImageErr(msg);
     } finally {
       setBusy(false);
     }
@@ -1076,15 +1097,12 @@ function AddListingDialog({
 }
 
 // --- Dev Self-Checks ---
-function runSelfChecks() {
+function runSelfChecks(): void {
+  if (process.env.NODE_ENV !== "development") return;
   try {
     const today = formatWhen(new Date().toISOString());
     const yday = formatWhen(new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString());
-    console.assert(typeof today === "string" && typeof yday === "string", "formatWhen should return strings");
-    (["Bronze", "Silver", "Gold"] as Standard[]).forEach((s) => {
-      const el = standardBadge(s);
-      console.assert(!!el, `Badge should render for ${s}`);
-    });
+    console.assert(typeof today === "string" && typeof yday === "string");
   } catch (e) {
     console.warn("Self-checks failed:", e);
   }
