@@ -446,7 +446,8 @@ const loadProfileFor = async (supaUser: SupaUser): Promise<AppUser> => {
               </h1>
               <p className="mt-3 text-blue-100/80 max-w-prose">
                 A clean, modern, blue-themed site to showcase caravans from Bronze to Gold. For now, each listing
-                highlights contact details so guests can reach out directly.
+                highlights contact details so guests can reach out directly.  And Caravan owners can directly advertise to their
+                customers with ease.
               </p>
               <div className="mt-6 flex items-center gap-3">
                 <Button
@@ -656,7 +657,8 @@ const loadProfileFor = async (supaUser: SupaUser): Promise<AppUser> => {
       {/* Footer */}
       <footer className="border-t border-white/10">
         <div className="max-w-6xl mx-auto px-4 py-10 text-sm text-blue-100/70 flex flex-col md:flex-row gap-4 md:items-center justify-between">
-          <p>© {new Date().getFullYear()} CaravanHub. Built for showcasing and contact-only enquiries.</p>
+          <p>© {new Date().getFullYear()} CaravanHub. Built for showcasing and contact-only enquiries.
+              To contact the administrator of this page please email: coreyyule22@gmail.com</p>
           <div className="flex items-center gap-2">
             <span className="opacity-70">Standards:</span>
             <span className="flex items-center gap-1">{standardBadge("Bronze")}</span>
