@@ -635,7 +635,7 @@ const loadProfileFor = async (supaUser: SupaUser): Promise<AppUser> => {
                             className="bg-red-600/80 hover:bg-red-600 text-white"
                             onClick={() => deleteListing(l.id)}
                           >
-                            <Trash2 className="w-4 h-4 mr-1" /> Delete
+                            <Trash2 className="w-4 h-4 mr-1"/>
                           </Button>
                         </>
                       )}
